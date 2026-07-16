@@ -20,7 +20,7 @@ pymysql.install_as_MySQLdb()
 # 2. SECURITY CONFIGURATION
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['*'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default="*")
 
 # Tambahkan kode ini secara manual di bawahnya:
 CSRF_TRUSTED_ORIGINS = [
