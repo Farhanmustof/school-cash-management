@@ -1,0 +1,118 @@
+{% extends 'users/base.html' %} {% load humanize %} {% block content %}
+<div class="mb-6">
+  <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
+    Dashboard Wali Kelas
+  </h1>
+  <p class="text-slate-500 text-sm">
+    Pantau kedisiplinan bayar kas kelas kamu.
+  </p>
+</div>
+
+<div class="grid grid-cols-1 gap-6">
+  {% for class in classrooms %}
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-4">
+    <div
+      class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3"
+    >
+      <div>
+        <h3 class="text-xl font-bold text-blue-600">Kelas: {{ class.name }}</h3>
+        <p class="text-slate-400 text-xs mt-0.5">
+          Tahun Ajaran: {{ class.academic_year.name|default:"-" }}
+        </p>
+      </div>
+      <span
+        class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"
+      >
+        Total Kas Kelas: Rp {{ class.total_money|default:0|intcomma }}
+      </span>
+    </div>
+
+    <div class="mb-4">
+      <h4
+        class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3"
+      >
+        Daftar Siswa Kelas Ini:
+      </h4>
+
+      <div class="overflow-x-auto border border-slate-100 rounded-xl">
+        <table class="w-full text-left border-collapse table-auto">
+          <thead
+            class="bg-slate-50 text-slate-500 text-xs font-semibold border-b border-slate-100"
+          >
+            <tr>
+              <th class="p-3">NIS/No.Absen</th>
+              <th class="p-3">Nama Siswa</th>
+              <th class="p-3 text-center">Status Akun</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50 text-sm text-slate-700">
+            {% for student in class.students.all %}
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="p-3 font-mono text-xs text-slate-500">
+                {{ student.nis|default:"-" }}
+              </td>
+              <td class="p-3 font-medium text-slate-800">
+                {% if student.full_name %} {{ student.full_name }} {% else %} {{
+                student.user.username }} {% endif %}
+              </td>
+              <td class="p-3 text-center">
+                {% if student.is_active %}
+                <span
+                  class="text-green-600 bg-green-50 px-2 py-0.5 rounded-md text-xs font-semibold"
+                  >Aktif</span
+                >
+                {% else %}
+                <span
+                  class="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md text-xs font-semibold"
+                  >Non-Aktif</span
+                >
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td
+                colspan="3"
+                class="p-6 text-center text-sm text-slate-400 italic"
+              >
+                Belum ada data siswa di kelas ini.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div
+    class="p-8 text-center rounded-2xl border border-dashed border-slate-200 bg-white"
+  >
+    <p class="text-slate-400 italic">
+      Kamu belum ditugaskan menjadi Wali Kelas.
+    </p>
+  </div>
+  {% endfor %}
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm mb-6 border border-gray-100">
+  <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+    📢 Pengumuman Sekolah Terbaru
+  </h2>
+
+  <div class="space-y-4">
+    {% for info in announcements %}
+    <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+      <h3 class="font-semibold text-blue-900 text-sm">{{ info.title }}</h3>
+      <p class="text-xs text-gray-600 mt-1">{{ info.content }}</p>
+      <span class="text-[10px] text-gray-400 block mt-2">
+        Diposting pada: {{ info.created_at|date:"d M Y" }}
+      </span>
+    </div>
+    {% empty %}
+    <p class="text-xs text-gray-500 italic">
+      Belum ada pengumuman aktif hari ini, Bro.
+    </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'users/base.html' %} {% block content %}
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-slate-800">Panel Bendahara</h1>
+  <p class="text-slate-500">Kelola konfirmasi pembayaran masuk.</p>
+</div>
+
+<div class="bg-orange-50 border border-orange-100 p-6 rounded-2xl mb-8">
+  <h3 class="text-orange-800 font-bold mb-2">Perlu Verifikasi</h3>
+  <p class="text-orange-600 text-sm">
+    Ada **{{ pending_payments }}** pembayaran baru yang perlu kamu cek
+    validitasnya di menu Transaksi.
+  </p>
+  <div class="bg-white p-6 rounded-2xl shadow-sm mb-6 border border-gray-100">
+    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+      📢 Pengumuman Sekolah Terbaru
+    </h2>
+
+    <div class="space-y-4">
+      {% for info in announcements %}
+      <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+        <h3 class="font-semibold text-blue-900 text-sm">{{ info.title }}</h3>
+        <p class="text-xs text-gray-600 mt-1">{{ info.content }}</p>
+        <span class="text-[10px] text-gray-400 block mt-2">
+          Diposting pada: {{ info.created_at|date:"d M Y" }}
+        </span>
+      </div>
+      {% empty %}
+      <p class="text-xs text-gray-500 italic">
+        Belum ada pengumuman aktif hari ini, Bro.
+      </p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

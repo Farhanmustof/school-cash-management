@@ -1,0 +1,201 @@
+{% extends 'users/base.html' %} {% load humanize %} {% block content %}
+<div class="space-y-6">
+  <!-- Header Section -->
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+  >
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-800">Ringkasan Keuangan</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Pantau arus kas sekolah secara real-time.
+      </p>
+    </div>
+  </div>
+
+  <!-- Statistik Card Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Total Saldo -->
+    <div
+      class="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-2xl shadow-xl shadow-blue-500/20 text-white relative overflow-hidden"
+    >
+      <i
+        class="fas fa-wallet absolute -right-4 -bottom-4 text-8xl text-white/10"
+      ></i>
+      <p class="text-blue-100 text-sm font-medium mb-1">Total Saldo Kas</p>
+      <h2 class="text-4xl font-extrabold tracking-tight">
+        Rp {{ total_balance|default:"0"|intcomma }}
+      </h2>
+    </div>
+
+    <!-- Pemasukan -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center"
+    >
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-xl"
+        >
+          <i class="fas fa-arrow-down"></i>
+        </div>
+        <div>
+          <p class="text-slate-500 text-sm font-medium">Pemasukan Bulan Ini</p>
+          <h3 class="text-2xl font-extrabold text-slate-800">
+            Rp {{ monthly_income|default:"0"|intcomma }}
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pengeluaran -->
+    <div
+      class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-center"
+    >
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl"
+        >
+          <i class="fas fa-arrow-up"></i>
+        </div>
+        <div>
+          <p class="text-slate-500 text-sm font-medium">
+            Pengeluaran Bulan Ini
+          </p>
+          <h3 class="text-2xl font-extrabold text-slate-800">
+            Rp {{ monthly_expense|default:"0"|intcomma }}
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Tabel Transaksi Terbaru (Kiri - 2 Kolom) -->
+    <div
+      class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
+    >
+      <div
+        class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50"
+      >
+        <h3 class="font-bold text-slate-800 text-lg">Transaksi Terbaru</h3>
+        <a
+          href="{% url 'payments:list' %}"
+          class="text-sm font-bold text-blue-600 hover:text-blue-800 transition"
+        >
+          Lihat Semua
+        </a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead
+            class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider"
+          >
+            <tr>
+              <th class="px-6 py-4 border-b border-slate-100">Nama Siswa</th>
+              <th class="px-6 py-4 border-b border-slate-100 text-center">
+                Status
+              </th>
+              <th class="px-6 py-4 border-b border-slate-100 text-right">
+                Nominal
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for p in recent_payments %}
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-6 py-4">
+                <!-- PERBAIKAN: Nama siswa dirapatkan agar tidak muncul kode mentah -->
+                <p class="font-bold text-slate-700 text-sm">
+                  {{
+                  p.student.user.get_full_name|default:p.student.user.username
+                  }}
+                </p>
+                <p
+                  class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-0.5"
+                >
+                  {{ p.student.nis }}
+                </p>
+              </td>
+              <td class="px-6 py-4 text-center">
+                {% if p.status == 'CONFIRMED' %}
+                <span
+                  class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase"
+                  >Sukses</span
+                >
+                {% elif p.status == 'PENDING' %}
+                <span
+                  class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold uppercase"
+                  >Pending</span
+                >
+                {% else %}
+                <span
+                  class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase"
+                  >Ditolak</span
+                >
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 font-bold text-slate-700 text-sm text-right">
+                Rp {{ p.amount|intcomma }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td
+                colspan="3"
+                class="px-6 py-10 text-center text-slate-400 italic"
+              >
+                Belum ada transaksi terbaru.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Aktivitas Terkini (Kanan - 1 Kolom) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div
+          class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center"
+        >
+          <i class="fas fa-fingerprint text-slate-400"></i>
+        </div>
+        <h3 class="font-bold text-slate-800">Aktivitas Terkini</h3>
+      </div>
+
+      <div class="space-y-6">
+        {% for log in activity_logs %}
+        <div class="flex items-start gap-4">
+          <div
+            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0"
+          >
+            <i class="fas fa-history text-slate-400 text-xs"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm">
+              <span class="font-bold text-blue-600"
+                >{{ log.user.username }}</span
+              >
+              <span class="text-slate-600">
+                {% if "added" in log.change_message %} menambahkan data baru {%
+                elif "changed" in log.change_message %} memperbarui informasi {%
+                elif "deleted" in log.change_message %} menghapus data {% else
+                %} melakukan aktivitas sistem {% endif %}
+              </span>
+            </p>
+            <p class="text-[10px] text-slate-400 uppercase font-bold mt-1">
+              {{ log.action_time|timesince }} yang lalu
+            </p>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-sm text-slate-400 italic text-center py-4">
+          Belum ada aktivitas.
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

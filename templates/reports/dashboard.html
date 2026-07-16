@@ -1,0 +1,91 @@
+{% extends 'users/base.html' %} {% load humanize %} {% block content %}
+<div class="p-8">
+  <h1 class="text-2xl font-bold mb-6 text-slate-800">
+    Ringkasan Laporan Keuangan
+  </h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg">
+      <p class="text-blue-100 text-sm font-medium">Total Saldo Kas</p>
+      <h2 class="text-3xl font-bold mt-1">Rp {{ saldo_akhir|intcomma }}</h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+      <p class="text-slate-500 text-sm font-medium">Total Pemasukan</p>
+      <h2 class="text-3xl font-bold text-green-600 mt-1">
+        Rp {{ total_pemasukan|intcomma }}
+      </h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+      <p class="text-slate-500 text-sm font-medium">Total Siswa Terdaftar</p>
+      <h2 class="text-3xl font-bold text-slate-800 mt-1">
+        {{ total_siswa }}
+        <span class="text-sm font-normal text-slate-400">Siswa</span>
+      </h2>
+    </div>
+  </div>
+
+  <div class="flex gap-4 mb-8">
+    <a
+      href="{% url 'reports:payment_report' %}"
+      class="px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-700 transition shadow-md"
+      style="text-decoration: none"
+    >
+      <i class="fas fa-list-alt mr-2"></i> Lihat Detail Pembayaran
+    </a>
+  </div>
+
+  <div
+    class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"
+  >
+    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+      <h3 class="font-bold text-slate-800">5 Pembayaran Terbaru</h3>
+      <span
+        class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-semibold"
+        >LIVE</span
+      >
+    </div>
+
+    <table class="w-full text-left">
+      <thead class="bg-slate-50 text-slate-500 text-sm">
+        <tr>
+          <th class="p-4 font-semibold">Siswa & Kelas</th>
+          <th class="p-4 font-semibold">Tanggal</th>
+          <th class="p-4 font-semibold text-right">Jumlah</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-50">
+        {% for p in transaksi_terakhir %}
+        <tr class="hover:bg-slate-50/50 transition">
+          <td class="p-4">
+            <div class="flex flex-col">
+              <span class="font-bold text-slate-700">
+                {{ p.student.full_name|cut:"{% else %}" }}
+              </span>
+              <span
+                class="text-[10px] text-blue-500 font-semibold uppercase tracking-wider"
+              >
+                {{ p.student.classroom.name|default:"Tanpa Kelas" }}
+              </span>
+            </div>
+          </td>
+          <td class="p-4 text-slate-500 text-sm">
+            {{ p.created_at|date:"d M Y" }}
+          </td>
+          <td class="p-4 text-right font-bold text-green-600">
+            Rp {{ p.amount|intcomma }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="p-8 text-center text-slate-400 italic">
+            Belum ada data transaksi.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

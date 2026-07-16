@@ -1,0 +1,169 @@
+{% extends 'users/base.html' %} {% load humanize %} {% block content %}
+<div id="payments-list-root" class="w-full space-y-6 text-slate-800 clear-both">
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4"
+  >
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
+        Riwayat Transaksi
+      </h1>
+      <p class="text-slate-500 font-medium text-sm mt-1">
+        Monitoring arus kas masuk dan verifikasi pembayaran siswa.
+      </p>
+    </div>
+    <a
+      href="{% url 'payments:create' %}"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center self-start md:self-auto"
+      style="text-decoration: none"
+    >
+      <i class="fas fa-plus mr-2"></i> Tambah Pembayaran
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">
+        Status Kas
+      </p>
+      <form method="GET" id="filter-form">
+        <select
+          name="status"
+          onchange="document.getElementById('filter-form').submit()"
+          class="w-full bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer"
+        >
+          <option value="">Semua Status</option>
+          <option
+            value="PENDING"
+            {%
+            if
+            request.GET.status=""
+            ="PENDING"
+            %}selected{%
+            endif
+            %}
+          >
+            Pending
+          </option>
+          <option
+            value="CONFIRMED"
+            {%
+            if
+            request.GET.status=""
+            ="CONFIRMED"
+            %}selected{%
+            endif
+            %}
+          >
+            Dikonfirmasi
+          </option>
+          <option
+            value="REJECTED"
+            {%
+            if
+            request.GET.status=""
+            ="REJECTED"
+            %}selected{%
+            endif
+            %}
+          >
+            Ditolak
+          </option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div
+    class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full"
+  >
+    <div class="overflow-x-auto w-full">
+      <table class="w-full text-left border-collapse table-auto min-w-[600px]">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+          >
+            <th class="p-5">Invoice & Siswa</th>
+            <th class="p-5">Kategori</th>
+            <th class="p-5">Nominal</th>
+            <th class="p-5 text-center">Status</th>
+            <th class="p-5 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+  {% for p in payments %}
+  <tr class="hover:bg-slate-50/50 transition">
+    
+    <td class="p-5">
+      <div class="font-bold text-blue-600">#{{ p.invoice_number }}</div>
+      <div class="text-slate-500 text-xs mt-0.5">
+        {{ p.student.full_name|default:"Siswa Tidak Diketahui" }} - {{ p.student.classroom.name|default:"Kelas Tidak Diketahui" }}
+      </div> </td> <td class="p-5">
+      <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase">
+        {{ p.category.name }}
+      </span>
+    </td>
+
+    <td class="p-5 font-black text-slate-700">
+      Rp {{ p.amount|floatformat:0|intcomma }}
+    </td>
+
+    <td class="p-5 text-center">
+      {% if p.status == 'CONFIRMED' %}
+      <span class="px-2 py-1 rounded-md bg-green-100 text-green-600 text-[9px] font-bold uppercase">
+        SUKSES
+      </span>
+      {% elif p.status == 'PENDING' %}
+      <span class="px-2 py-1 rounded-md bg-orange-100 text-orange-600 text-[9px] font-bold uppercase">
+        PENDING
+      </span>
+      {% else %}
+      <span class="px-2 py-1 rounded-md bg-red-100 text-red-600 text-[9px] font-bold uppercase">
+        DITOLAK
+      </span>
+      {% endif %}
+    </td>
+            </td>
+            <td class="p-5">
+              <div class="flex items-center justify-center gap-2">
+                {% if p.status == 'PENDING' and user.role != 'siswa' %}
+                <form
+                  action="{% url 'payments:confirm' p.pk %}"
+                  method="POST"
+                  class="inline"
+                >
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="approve" />
+                  <button
+                    type="submit"
+                    class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-blue-700 transition border-0 cursor-pointer"
+                  >
+                    KONFIRMASI
+                  </button>
+                </form>
+                {% endif %}
+                <a
+                  href="{% url 'payments:detail' p.pk %}"
+                  class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-800 hover:text-white transition"
+                  style="text-decoration: none"
+                >
+                  <i class="fas fa-eye text-xs"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td
+              colspan="5"
+              class="p-20 text-center text-slate-400 text-sm italic bg-slate-50/30"
+            >
+              Belum ada catatan pembayaran kas terdaftar.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

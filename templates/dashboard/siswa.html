@@ -1,0 +1,168 @@
+{% extends 'users/base.html' %} {% load humanize %} {% block content %}
+<div
+  id="siswa-dashboard-root"
+  class="w-full space-y-6 text-slate-800 opacity-0 transition-opacity duration-200 block clear-both"
+>
+  <div class="pt-2 md:pt-0">
+    <h1
+      class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight"
+    >
+      Halo, {{ student.full_name|default:user.username }} 👋
+    </h1>
+    <p class="text-slate-500 text-xs sm:text-sm mt-1">
+      Berikut adalah ringkasan pembayaran kas kamu.
+    </p>
+  </div>
+
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+    <h2
+      class="text-base sm:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"
+    >
+      📢 Pengumuman Sekolah Terbaru
+    </h2>
+
+    <div class="space-y-4">
+      {% for info in announcements %}
+      <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+        <h3 class="font-semibold text-blue-900 text-sm">{{ info.title }}</h3>
+        <p class="text-xs text-gray-600 mt-1">{{ info.content }}</p>
+        <span class="text-[10px] text-gray-400 block mt-2">
+          Diposting pada: {{ info.created_at|date:"d M Y" }}
+        </span>
+      </div>
+      {% empty %}
+      <p class="text-xs text-slate-500 italic">
+        Belum ada pengumuman aktif hari ini, Bro.
+      </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 w-full">
+    <div
+      class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-2xl shadow-md text-white w-full"
+    >
+      <p
+        class="text-[10px] sm:text-xs font-bold text-blue-200 uppercase tracking-wider mb-2"
+      >
+        Sudah Dibayar
+      </p>
+      <h3 class="text-2xl sm:text-3xl font-black tracking-tight">
+        Rp {{ total_paid|default:0|floatformat:0|intcomma }}
+      </h3>
+    </div>
+
+    <div
+      class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm w-full"
+    >
+      <p
+        class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"
+      >
+        Tunggakan / Sisa Tagihan
+      </p>
+      <h3 class="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
+        Rp {{ sisa_tagihan|default:0|floatformat:0|intcomma }}
+      </h3>
+    </div>
+  </div>
+
+  <div
+    class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 w-full"
+  >
+    <div class="mb-4">
+      <h3 class="text-base sm:text-lg font-bold text-slate-800">
+        Riwayat Pembayaran Saya
+      </h3>
+      <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+        Daftar transaksi kas yang telah kamu lakukan.
+      </p>
+    </div>
+
+    <div class="w-full overflow-x-auto rounded-xl border border-slate-100">
+      <table class="w-full text-left border-collapse table-auto min-w-[500px]">
+        <thead
+          class="bg-slate-50 text-slate-500 text-[11px] sm:text-xs font-bold uppercase tracking-wider border-b border-slate-100"
+        >
+          <tr>
+            <th class="p-4">No. Invoice</th>
+            <th class="p-4">Tanggal</th>
+            <th class="p-4">Nominal</th>
+            <th class="p-4 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody
+          class="divide-y divide-slate-100 text-xs sm:text-sm text-slate-700"
+        >
+          {% for p in my_payments %}
+          <tr class="hover:bg-slate-50/50 transition">
+            <td class="p-4 font-bold text-blue-600">#{{ p.invoice_number }}</td>
+            <td class="p-4 text-slate-500">
+              {{ p.created_at|date:"d M Y, H:i" }}
+            </td>
+            <td class="p-4 font-bold text-slate-800">
+              Rp {{ p.amount|floatformat:0|intcomma }}
+            </td>
+            <td class="p-4 text-center">
+              {% if p.status == 'CONFIRMED' %}
+              <span
+                class="text-green-600 bg-green-50 px-2.5 py-1 rounded-full font-semibold"
+                >Sukses</span
+              >
+              {% elif p.status == 'PENDING' %}
+              <span
+                class="text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full font-semibold"
+                >Pending</span
+              >
+              {% else %}
+              <span
+                class="text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full font-semibold"
+                >Ditolak</span
+              >
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td
+              colspan="4"
+              class="p-12 text-center text-slate-400 italic bg-slate-50/30"
+            >
+              Belum ada riwayat pembayaran kas terdaftar.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function rapihkanLayoutSiswa() {
+      const rootSiswa = document.getElementById("siswa-dashboard-root");
+      if (!rootSiswa) return;
+
+      let currentElement = rootSiswa.parentElement;
+
+      for (let i = 0; i < 3; i++) {
+        if (currentElement && currentElement.tagName !== "BODY") {
+          currentElement.style.width = "100%";
+          currentElement.style.flex = "1";
+          currentElement.style.minWidth = "0";
+          currentElement.style.overflow = "auto";
+          currentElement.classList.add("w-full", "flex-1", "min-w-0");
+          currentElement = currentElement.parentElement;
+        }
+      }
+      rootSiswa.classList.remove("opacity-0");
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", rapihkanLayoutSiswa);
+    } else {
+      rapihkanLayoutSiswa();
+    }
+  })();
+</script>
+{% endblock %}

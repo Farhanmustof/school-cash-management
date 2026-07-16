@@ -1,0 +1,83 @@
+{% extends 'users/base.html' %} {% block content %}
+<div class="max-w-md mx-auto text-center">
+  <div class="mb-8">
+    <a
+      href="{% url 'students:list' %}"
+      class="text-xs font-bold text-blue-600 hover:underline inline-block mb-4"
+    >
+      <i class="fas fa-arrow-left mr-1"></i> Kembali ke Daftar
+    </a>
+    <h1 class="text-2xl font-black text-slate-800 tracking-tight">
+      QR Code Identitas
+    </h1>
+    <p class="text-slate-500 text-sm italic">{{ student.full_name }}</p>
+  </div>
+
+  <div
+    class="bg-white p-10 rounded-[32px] shadow-2xl shadow-slate-200 border border-slate-100 flex flex-col items-center"
+  >
+    <div
+      class="bg-slate-50 p-6 rounded-3xl border-4 border-white shadow-inner mb-6"
+    >
+      {% if student.qr_code %}
+      <img
+        src="{{ student.qr_code.url }}"
+        alt="QR Code {{ student.full_name }}"
+        class="w-48 h-48 rounded-xl shadow-sm"
+      />
+      {% else %}
+      <div
+        class="w-48 h-48 flex flex-col items-center justify-center text-slate-300"
+      >
+        <i class="fas fa-qrcode text-5xl mb-2"></i>
+        <p class="text-[10px] font-bold">QR Belum Digenerate</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="space-y-1 mb-8">
+      <h2 class="text-xl font-bold text-slate-800">{{ student.nis }}</h2>
+      <p class="text-sm font-medium text-slate-400 uppercase tracking-widest">
+        {{ student.classroom.name|default:"Tanpa Kelas" }}
+      </p>
+    </div>
+
+    <button
+      onclick="window.print()"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center"
+    >
+      <i class="fas fa-print mr-2"></i> Cetak Kartu QR
+    </button>
+  </div>
+
+  <p
+    class="mt-8 text-[10px] text-slate-400 font-medium px-10 leading-relaxed uppercase tracking-tighter"
+  >
+    Gunakan QR Code ini untuk melakukan verifikasi pembayaran kas sekolah secara
+    cepat melalui sistem scanner.
+  </p>
+</div>
+
+<style>
+  @media print {
+    aside,
+    nav,
+    .mb-8,
+    button,
+    p.mt-8 {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+    }
+    .max-w-md {
+      margin: 0 auto !important;
+      padding-top: 50px !important;
+    }
+    .bg-white {
+      box-shadow: none !important;
+      border: 2px solid #f1f5f9 !important;
+    }
+  }
+</style>
+{% endblock %}

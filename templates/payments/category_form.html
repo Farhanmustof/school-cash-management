@@ -1,0 +1,78 @@
+{% extends 'users/base.html' %} {% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-slate-800">{{ title }}</h1>
+    <p class="text-slate-500 text-sm">
+      Tambahkan kategori baru untuk memisahkan jenis transaksi.
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+    <form method="POST">
+      {% csrf_token %}
+
+      <!-- Nama Kategori -->
+      <div class="mb-6">
+        <label for="name" class="block text-sm font-bold text-slate-700 mb-2"
+          >Nama Kategori</label
+        >
+        <input
+          type="text"
+          name="name"
+          id="name"
+          required
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none"
+          placeholder="Contoh: Uang Kas, SPP, atau Alat Tulis"
+        />
+      </div>
+
+      <!-- Tipe Kategori -->
+      <div class="mb-6">
+        <label for="type" class="block text-sm font-bold text-slate-700 mb-2"
+          >Tipe Transaksi</label
+        >
+        <select
+          name="type"
+          id="type"
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none"
+        >
+          <option value="in">Pemasukan (Uang Masuk)</option>
+          <option value="out">Pengeluaran (Uang Keluar)</option>
+        </select>
+      </div>
+
+      <!-- Deskripsi -->
+      <div class="mb-8">
+        <label
+          for="description"
+          class="block text-sm font-bold text-slate-700 mb-2"
+          >Keterangan (Opsional)</label
+        >
+        <textarea
+          name="description"
+          id="description"
+          rows="3"
+          class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition outline-none"
+          placeholder="Berikan penjelasan singkat tentang kategori ini..."
+        ></textarea>
+      </div>
+
+      <!-- Tombol Aksi -->
+      <div class="flex items-center justify-end space-x-4">
+        <a
+          href="{% url 'payments:category_list' %}"
+          class="text-slate-500 hover:text-slate-700 font-medium text-sm"
+        >
+          Batal
+        </a>
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-200 transition"
+        >
+          Simpan Kategori
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

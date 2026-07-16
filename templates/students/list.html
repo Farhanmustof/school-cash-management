@@ -1,0 +1,105 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Data Siswa</h1>
+        <p class="text-slate-500 text-sm">Total: <span class="font-bold text-blue-600">{{ total_students }} Siswa</span></p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'students:export_excel' %}?classroom={{ request.GET.classroom|default:'' }}&q={{ request.GET.q|default:'' }}" 
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg transition flex items-center">
+            <i class="fas fa-file-excel mr-2"></i> Export Excel
+        </a>
+        <a href="{% url 'students:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg transition flex items-center">
+            <i class="fas fa-plus mr-2"></i> Tambah Siswa
+        </a>
+    </div>
+</div>
+
+<div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2 relative">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Cari Nama atau NIS..." 
+                   class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition">
+        </div>
+
+        <select name="classroom" class="py-2 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition">
+            <option value="">Semua Kelas</option>
+            {% for c in classrooms %}
+                <option value="{{ c.id }}" {% if request.GET.classroom == c.id|stringformat:"s" %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition py-2">
+            <i class="fas fa-filter mr-1"></i> Filter
+        </button>
+    </form>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50">
+                <tr class="text-[10px] font-bold text-slate-400 uppercase">
+                    <th class="p-4">Siswa</th>
+                    <th class="p-4">NIS</th>
+                    <th class="p-4 text-center">Status</th>
+                    <th class="p-4 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for s in students %}
+                <tr class="hover:bg-slate-50/50 transition">
+                    <td class="p-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-slate-700">{{ s.full_name }}</span>
+                            <span class="text-[10px] text-slate-400">{{ s.classroom.name|default:"Tidak Ada Kelas" }}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-xs text-slate-500 font-medium">{{ s.nis }}</td>
+                    <td class="p-4 text-center">
+                        {% if s.is_active %}
+                            <span class="px-2 py-1 rounded-md bg-green-100 text-green-600 text-[9px] font-bold inline-block">AKTIF</span>
+                        {% else %}
+                            <span class="px-2 py-1 rounded-md bg-red-100 text-red-600 text-[9px] font-bold inline-block">NONAKTIF</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        <div class="flex justify-center gap-4">
+                            <a href="{% url 'students:qr' s.pk %}" class="text-slate-400 hover:text-blue-600 transition" title="QR Code">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
+                            <a href="{% url 'students:detail' s.pk %}" class="text-slate-400 hover:text-slate-800 transition" title="Lihat Detail">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'students:edit' s.pk %}" class="text-slate-400 hover:text-amber-500 transition" title="Edit Data">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'students:delete' s.pk %}" class="text-slate-400 hover:text-red-600 transition" title="Hapus Data">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-12 text-center">
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-user-slash text-slate-200 text-4xl mb-3"></i>
+                            <p class="text-slate-400 text-sm">Data siswa tidak ditemukan.</p>
+                            {% if request.GET.q or request.GET.classroom %}
+                                <a href="{% url 'students:list' %}" class="text-blue-500 text-xs mt-2 hover:underline">Bersihkan Filter</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

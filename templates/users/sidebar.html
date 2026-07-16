@@ -1,0 +1,136 @@
+<aside
+  id="sidebar"
+  class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white flex flex-col shadow-2xl transition-all duration-300 transform -translate-x-full md:translate-x-0 h-screen md:sticky top-0"
+>
+  <div
+    class="h-20 flex items-center justify-between px-6 border-b border-slate-800"
+  >
+    <div class="flex items-center">
+      <div
+        class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 mr-3"
+      >
+        <i class="fas fa-school text-white"></i>
+      </div>
+      <span class="text-xl font-extrabold tracking-tight">KasSekolah</span>
+    </div>
+    <button
+      onclick="toggleSidebar()"
+      class="md:hidden text-slate-400 hover:text-white"
+    >
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+
+  <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 scrollbar-hide">
+    <p
+      class="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2"
+    >
+      Menu Utama
+    </p>
+
+    <a
+      href="{% url 'dashboard:dashboard' %}"
+      class="flex items-center px-4 py-3 {% if '/dashboard/' in request.path %}bg-blue-600 text-white shadow-md shadow-blue-600/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %} rounded-xl transition group"
+    >
+      <i
+        class="fas fa-th-large w-6 {% if '/dashboard/' in request.path %}text-blue-200{% else %}group-hover:text-white{% endif %} transition"
+      ></i>
+      <span class="font-semibold text-sm">Dashboard</span>
+    </a>
+
+    {% if user.role == 'super_admin' or user.role == 'admin' %}
+    <a
+      href="{% url 'students:list' %}"
+      class="flex items-center px-4 py-3 {% if '/students/' in request.path %}bg-blue-600 text-white shadow-md shadow-blue-600/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %} rounded-xl transition group"
+    >
+      <i class="fas fa-users w-6 group-hover:text-blue-400 transition"></i>
+      <span class="font-medium text-sm">Data Siswa</span>
+    </a>
+    {% endif %} {% if user.role != 'guru' %} {% endif %}
+    <a
+      href="{% url 'payments:list' %}"
+      class="flex items-center px-4 py-3 {% if '/payments/' in request.path %}bg-blue-600 text-white shadow-md shadow-blue-600/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %} rounded-xl transition group"
+    >
+      <i class="fas fa-wallet w-6 group-hover:text-green-400 transition"></i>
+      <span class="font-medium text-sm">
+        {% if user.role == 'siswa' %}Riwayat Bayar{% else %}Pembayaran Kas
+      </span>
+    </a>
+    {% endif %} {% if user.role != 'siswa' %}
+    <div class="pt-6 pb-2 px-2">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+        Pengaturan & Laporan
+      </p>
+    </div>
+    <a
+      href="{% url 'reports:dashboard' %}"
+      class="flex items-center px-4 py-3 {% if '/laporan/' in request.path or '/reports/' in request.path %}bg-blue-600 text-white shadow-md shadow-blue-600/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %} rounded-xl transition group"
+    >
+      <i class="fas fa-file-alt w-6 group-hover:text-yellow-400 transition"></i>
+      <span class="font-medium text-sm">Laporan Kas</span>
+    </a>
+    {% endif %} {% if user.role == 'super_admin' %}
+    <div class="pt-6 pb-2 px-2 border-t border-slate-800 mt-4">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+        Master Data
+      </p>
+    </div>
+    <a
+      href="{% url 'users:user_list' %}"
+      class="flex items-center px-4 py-3 {% if '/users/' in request.path %}bg-blue-600 text-white shadow-md shadow-blue-600/20{% else %}text-slate-400 hover:bg-slate-800 hover:text-white{% endif %} rounded-xl transition group"
+    >
+      <i
+        class="fas fa-users-cog w-6 group-hover:text-purple-400 transition"
+      ></i>
+      <span class="font-medium text-sm">Manajemen User</span>
+    </a>
+    {% endif %}
+
+    <form action="{% url 'users:logout' %}" method="post" class="pt-4">
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="w-full flex items-center px-4 py-3 text-red-400 hover:bg-red-900/20 hover:text-red-500 rounded-xl transition group font-bold"
+      >
+        <i class="fas fa-sign-out-alt w-6 transition"></i>
+        <span class="text-sm">Keluar</span>
+      </button>
+    </form>
+  </nav>
+
+  <div class="p-4 border-t border-slate-800 bg-slate-900">
+    <div
+      class="flex items-center p-3 bg-slate-800/50 rounded-xl border border-white/5"
+    >
+      <div
+        class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-blue-600 flex items-center justify-center font-bold text-sm text-white shrink-0"
+      >
+        {{ user.username|slice:":1"|upper }}
+      </div>
+      <div class="ml-3 overflow-hidden">
+        <p class="text-sm font-bold text-white truncate">{{ user.username }}</p>
+        <p
+          class="text-[9px] text-slate-400 uppercase tracking-widest font-bold"
+        >
+          {{ user.get_role_display|default:"User" }}
+        </p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div
+  id="sidebar-overlay"
+  onclick="toggleSidebar()"
+  class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity md:hidden"
+></div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  }
+</script>

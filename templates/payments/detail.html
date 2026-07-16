@@ -1,0 +1,121 @@
+{% extends 'users/base.html' %} {% block content %}
+<div class="max-w-xl mx-auto">
+  <div class="mb-6 flex justify-between items-center">
+    <a
+      href="{% url 'payments:list' %}"
+      class="text-xs font-bold text-blue-600 hover:underline"
+      ><i class="fas fa-arrow-left mr-1"></i> Kembali</a
+    >
+    <button
+      onclick="window.print()"
+      class="text-xs font-bold text-slate-500 hover:text-slate-800"
+    >
+      <i class="fas fa-print mr-1"></i> Cetak Kwitansi
+    </button>
+  </div>
+
+  <div
+    class="bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden print:border-none print:shadow-none"
+  >
+    <div class="bg-blue-600 p-8 text-white text-center">
+      <i class="fas fa-check-circle text-5xl mb-4 opacity-50"></i>
+      <h2 class="text-2xl font-black">Bukti Pembayaran</h2>
+      <p class="text-blue-100 text-xs font-bold uppercase tracking-widest mt-1">
+        Invoice #{{ payment.invoice_number }}
+      </p>
+    </div>
+
+    <div class="p-10 space-y-8">
+      <div
+        class="flex justify-between items-center border-b border-slate-50 pb-6"
+      >
+        <div>
+          <p
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+          >
+            Nama Siswa
+          </p>
+          <p class="text-lg font-black text-slate-800">
+            {{ payment.student.full_name }}
+          </p>
+        </div>
+        <div class="text-right">
+          <p
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+          >
+            Kelas
+          </p>
+          <p class="text-sm font-bold text-slate-700">
+            {{ payment.student.classroom.name|default:"-" }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8">
+        <div>
+          <p
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+          >
+            Kategori
+          </p>
+          <p class="text-sm font-bold text-slate-700">
+            {{ payment.category.name }}
+          </p>
+        </div>
+        <div>
+          <p
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+          >
+            Tanggal
+          </p>
+          <p class="text-sm font-bold text-slate-700">
+            {{ payment.created_at|date:"d F Y" }}
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 p-6 rounded-3xl text-center">
+        <p
+          class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1"
+        >
+          Total Dibayarkan
+        </p>
+        <h3 class="text-3xl font-black text-blue-600">
+          Rp {{ payment.amount }}
+        </h3>
+      </div>
+
+      {% if payment.proof_of_payment %}
+      <div class="pt-4 text-center">
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-4">
+          Bukti Lampiran
+        </p>
+        <img
+          src="{{ payment.proof_of_payment.url }}"
+          class="max-w-full rounded-2xl border-4 border-slate-50 mx-auto"
+          alt="Bukti Bayar"
+        />
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    aside,
+    nav,
+    .mb-6,
+    button {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+    }
+    .max-w-xl {
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+  }
+</style>
+{% endblock %}
