@@ -3,6 +3,10 @@ from pathlib import Path
 from datetime import timedelta
 import pymysql
 import environ
+import dj_database_url
+
+# Jalur dasar proyek
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Inisialisasi environ
 env = environ.Env()
@@ -13,13 +17,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, 'config', '.env'))
 # Wajib untuk Windows/Development menggunakan MySQL
 pymysql.install_as_MySQLdb()
 
-# Jalur dasar proyek
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 # 2. SECURITY CONFIGURATION
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+DEBUG = env.bool('DEBUG', False)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['*'])
 
 # Tambahkan kode ini secara manual di bawahnya:
 CSRF_TRUSTED_ORIGINS = [
@@ -95,20 +96,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-# 5. DATABASE (MySQL Configuration)
+# 5. DATABASE (PostgreSQL Configuration for Render)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 # 6. AUTHENTICATION & USER MODEL
@@ -175,7 +169,7 @@ CHANNEL_LAYERS = {
 }
 
 # 11. BACKGROUND TASKS (Celery)
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = env('REDIS_URL', default='redis://127.0.0.1:6379/0')
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Jakarta'
