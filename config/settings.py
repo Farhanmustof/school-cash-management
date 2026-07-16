@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import pymysql
+import environ
+
+# Inisialisasi environ
+env = environ.Env()
+# Baca file .env
+environ.Env.read_env(os.path.join(BASE_DIR, 'config', '.env'))
 
 # 1. DATABASE ADAPTER
 # Wajib untuk Windows/Development menggunakan MySQL
@@ -11,7 +17,7 @@ pymysql.install_as_MySQLdb()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2. SECURITY CONFIGURATION
-SECRET_KEY = 'django-insecure-sekolah-pro-key-gabungan'
+SECRET_KEY = env('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
@@ -29,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    
+
     # Third party apps
     'rest_framework',
     'rest_framework_simplejwt',
@@ -38,7 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'import_export',
     'drf_spectacular',
-    
+
     # Local Apps (Modul kustom)
     'apps.users',
     'apps.students',
@@ -93,11 +99,11 @@ ASGI_APPLICATION = 'config.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_kas_sekolah',
-        'USER': 'root',
-        'PASSWORD': 'LuciaVill003',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
